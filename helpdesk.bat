@@ -1,174 +1,251 @@
 @echo off
+title HelpDesk IT - Automatizador de Tareas
+echo ==========================================
+echo   CONSULTA DE IDIOMA DEL SISTEMA (DISM)
+echo ==========================================
+dism /online /get-intl
+pause
+
+echo Bienvenido %username%, deseas continuar?
+pause>nul
+
+:start
 cls
 echo ********************
 echo *** HelpDesk IT ****
 echo ********************
 echo.
-title Informacion del Sistema
-color 0A
-
-echo ==========================
-echo INFORMACION DEL SISTEMA
-echo ==========================
-echo.
-
-:: Nombre del equipo y del usuario actual
-echo Nombre del Equipo: %COMPUTERNAME%
-echo Usuario actual: %USERNAME%
-:: Informacion del sistema operativo
-echo Version de Windows:
-ver
-:: Detalles del sistema operativo
-systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
-
-:start
-echo.
-echo 1. Ver serie del equipo
-echo 2. Version BIOS
-echo 3. MSINFO32
-echo 4. Usuarios sin expiracion
+echo 1. Ver Serie del Equipo
+echo 2. Ver Version BIOS
+echo 3. Abrir MSINFO32
+echo 4. Configurar Usuarios sin Expiracion
 echo 5. Ver HostName
 echo 6. Cambiar HostName
-echo 7. WinGet Upgrade
-echo 8. WinGet Update
-echo 9. Sincronizar hora
-echo 10. Bloquear Wallpaper
-echo 11. Desbloquear Wallpaper
-echo 12. Reparar PC
-echo 13. Instalar Herramientas
+echo 7. Actualizar Programas con WinGet (Upgrade)
+echo 8. Buscar Actualizaciones con WinGet (Update)
+echo 9. Sincronizar Hora
+echo 10. Bloquear Fondo de Pantalla (ON)
+echo 11. Desbloquear Fondo de Pantalla (OFF)
+echo 12. Reparar PC (SFC, DISM, CHKDSK)
+echo 13. Instalar Herramientas Esenciales (WinGet)
 echo 14. Reparar WinGet
-echo 0. Salir
+echo 15. Instalar Windows 11 25H2 (Product Server)
 echo.
-set /p valor=Selecciona una opcion:
+echo 0. SALIR
+echo.
 
-if "%valor%"=="0" goto SALIR
-if "%valor%"=="1" goto SERIAL 
-if "%valor%"=="2" goto BIOS
-if "%valor%"=="3" goto MSINFO
-if "%valor%"=="4" goto USERS
-if "%valor%"=="5" goto HOST
-if "%valor%"=="6" goto HOSTNAME
-if "%valor%"=="7" goto WINGETUPGRADE
-if "%valor%"=="8" goto WINGETUPDATE
-if "%valor%"=="9" goto HORA
-if "%valor%"=="10" goto BLOCKWALLPAPER_ON
-if "%valor%"=="11" goto BLOCKWALLPAPER_OFF
-if "%valor%"=="12" goto REPAIR_PC
-if "%valor%"=="13" goto TOOLS
-if "%valor%"=="14" goto REPAIR_WINGET
+set /p "valor=Selecciona una opcion: "
 
-goto ERROR
+REM Validar que la entrada sea un numero
+for /f "delims=0123456789" %%i in ("%valor%") do (
+    if not "%%i"=="" (
+        goto ERROR_OPCION
+    )
+)
+
+if "%VALOR%"=="0" goto SALIR
+if "%VALOR%"=="1" goto SERIAL
+if "%VALOR%"=="2" goto BIOS
+if "%VALOR%"=="3" goto MSINFO
+if "%VALOR%"=="4" goto USERS
+if "%VALOR%"=="5" goto HOST
+if "%VALOR%"=="6" goto HOSTNAME
+if "%VALOR%"=="7" goto WINGET_UPGRADE
+if "%VALOR%"=="8" goto WINGET_UPDATE
+if "%VALOR%"=="9" goto HORA
+if "%VALOR%"=="10" goto BLOCKWALLPAPER_ON
+if "%VALOR%"=="11" goto BLOCKWALLPAPER_OFF
+if "%VALOR%"=="12" goto REPAIR_PC
+if "%VALOR%"=="13" goto TOOLS
+if "%VALOR%"=="14" goto REPAIR_WINGET
+if "%VALOR%"=="15" goto WIN25H2
+
+:ERROR_OPCION
+cls
+echo ERROR: Opcion no valida, por favor intenta de nuevo.
+echo.
+pause
+goto start
+
+REM --- Funciones ---
+
+:WIN25H2
+cd d:
+if exist "setup.exe" (
+    echo [i] Iniciando instalacion en modo Server...
+    setup.exe /product server
+) else (
+    echo [ERROR] No se encontro setup.exe en el directorio actual.
+)
 
 :TOOLS
+cls
+echo --- Instalando Herramientas Esenciales ---
+echo Esto puede tomar unos minutos, por favor espere...
 PowerShell winget install -e --id Google.Chrome
-PowerShell winget install --id=7zip.7zip -e
-PowerShell winget install --id=Foxit.FoxitReader -e
-PowerShell winget install --id=Skillbrains.Lightshot -e
-PowerShell winget install --id=Bria.Bria -e
-PowerShell winget install --id=Microsoft.DotNet.DesktopRuntime.7 -e
-PowerShell winget install --id=Microsoft.DotNet.Runtime.8 -e
-PowerShell winget install --id=VideoLAN.VLC -e
-PowerShell winget install --id=Google.GoogleDrive -e
-PowerShell winget install --id=Microsoft.PCManager -e
+PowerShell winget install -e --id 7zip.7zip
+PowerShell winget install -e --id Foxit.FoxitReader
+PowerShell winget install -e --id Skillbrains.Lightshot
+PowerShell winget install -e --id Bria.Bria
+PowerShell winget install -e --id Microsoft.DotNet.DesktopRuntime.7
+PowerShell winget install -e --id Microsoft.DotNet.Runtime.8
+PowerShell winget install -e --id VideoLAN.VLC
+PowerShell winget install -e --id Google.GoogleDrive
+PowerShell winget install -e --id Microsoft.PCManager
+echo.
+echo Instalacion de herramientas completada.
 pause
 goto start
 
 :SERIAL
-echo.
+cls
+echo --- Informacion de Serie del Equipo ---
 wmic csproduct get name, identifyingnumber
+echo.
 pause
 goto start
 
 :BIOS
-echo.
+cls
+echo --- Version del BIOS ---
 wmic bios get smbiosbiosversion
+echo.
 pause
 goto start
 
 :MSINFO
-start msinfo32
+cls
+echo --- Abriendo Informacion del Sistema (MSINFO32) ---
+msinfo32
 goto start
 
 :USERS
-echo.
+cls
+echo --- Configuracion de Usuarios sin Expiracion de Contrasena ---
+echo Verificando y configurando usuarios...
 net user Maxitransfers /expires:never
 net user User /expires:never
 net accounts /maxpwage:unlimited
+echo.
+echo Configuracion de usuarios completada.
+echo Recuerda que las cuentas 'Maxitransfers' y 'User' deben existir.
 pause
 goto start
 
 :HOSTNAME
+cls
+echo --- Cambiar Nombre de Host ---
+SET /p "new_hostname=Introduce el nuevo nombre para el equipo: "
 echo.
-set /p hostname=Escribe el nuevo nombre del equipo:
-PowerShell Rename-Computer -NewName %hostname%
+echo Cambiando el nombre del equipo a "%new_hostname%".
+echo Esto puede requerir un reinicio del sistema para aplicar los cambios.
+PowerShell Rename-Computer -NewName "%new_hostname%" -Force
+echo.
 pause
 goto start
 
 :HOST
-echo.
-echo Hostname:
+cls
+echo --- Nombre de Host Actual ---
 hostname
+echo.
 pause
 goto start
 
 :REPAIR_WINGET
+cls
+echo --- Reparando WinGet ---
 PowerShell Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+echo.
+echo Reparacion de WinGet completada (o intentada).
 pause
 goto start
 
-:WINGETUPGRADE
+:WINGET_UPGRADE
+cls
+echo --- Actualizando Programas con WinGet (Upgrade) ---
+echo Esto puede tomar un tiempo, por favor espere...
 PowerShell winget upgrade
+echo.
+echo Actualizacion de programas completada.
 pause
 goto start
 
-:WINGETUPDATE
+:WINGET_UPDATE
+cls
+echo --- Buscando Actualizaciones con WinGet (Update All) ---
+echo Esto puede tomar un tiempo, por favor espere...
 PowerShell winget update --all
+echo.
+echo Busqueda de actualizaciones completada.
 pause
 goto start
 
 :HORA
-echo ===============================
-echo   CONFIGURACION REGIONAL MX
-echo ===============================
-PowerShell Set-WinSystemLocale es-MX
-PowerShell Set-WinUserLanguageList es-MX -Force
-PowerShell Set-WinUILanguageOverride -Language es-MX
-PowerShell Set-Culture es-MX
-PowerShell Set-TimeZone -Id "Central Standard Time (Mexico)"
-PowerShell Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "DisableAutoDaylightTimeSet" -Value 1 -Type DWord
-PowerShell w32tm /resync
+cls
+echo --- Sincronizando Hora ---
+w32tm /resync
+echo.
+echo Sincronizacion de hora completada.
 pause
 goto start
 
 :BLOCKWALLPAPER_ON
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\ActiveDesktop" /v NoChangingWallpaper /t REG_DWORD /d 1 /f
+cls
+echo --- Bloqueando Fondo de Pantalla ---
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\ActiveDesktop /v NoChangingWallpaper /t REG_DWORD /d 0x00000001 /f
+echo.
+echo Fondo de pantalla bloqueado. Un reinicio de sesion puede ser necesario.
 pause
 goto start
 
 :BLOCKWALLPAPER_OFF
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\ActiveDesktop" /v NoChangingWallpaper /t REG_DWORD /d 0 /f
+cls
+echo --- Desbloqueando Fondo de Pantalla ---
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\ActiveDesktop /v NoChangingWallpaper /t REG_DWORD /d 0x00000000 /f
+echo.
+echo Fondo de pantalla desbloqueado. Un reinicio de sesion puede ser necesario.
 pause
 goto start
 
 :REPAIR_PC
-sfc /scannow
-pause
-DISM /Online /Cleanup-Image /CheckHealth
-pause
-DISM /Online /Cleanup-Image /ScanHealth
-pause
-DISM /Online /Cleanup-Image /RestoreHealth
-pause
-chkdsk C: /F /R
-pause
-goto start
-
-:ERROR
 cls
-echo Opcion no valida, intenta otra vez.
+echo --- Iniciando Proceso de Reparacion del PC ---
+echo Esto puede tardar bastante, por favor no cierre la ventana.
+
+echo.
+echo --- Ejecutando SFC /scannow (Verificacion de integridad de archivos del sistema) ---
+sfc /scannow
+echo SFC /scannow completado.
+
+echo.
+echo --- Ejecutando DISM /CheckHealth (Verificacion del estado de la imagen de Windows) ---
+DISM /Online /Cleanup-Image /CheckHealth
+echo DISM /CheckHealth completado.
+
+echo.
+echo --- Ejecutando DISM /ScanHealth (Analisis mas profundo del estado de la imagen de Windows) ---
+DISM /Online /Cleanup-Image /ScanHealth
+echo DISM /ScanHealth completado.
+
+echo.
+echo --- Ejecutando DISM /RestoreHealth (Reparacion de la imagen de Windows) ---
+DISM /Online /Cleanup-Image /RestoreHealth
+echo DISM /RestoreHealth completado.
+
+echo.
+echo --- Ejecutando CHKDSK C: /F /R (Verificacion y reparacion de disco C:) ---
+echo ATENCION: CHKDSK puede requerir un reinicio para ejecutarse si el disco esta en uso.
+chkdsk C: /F /R
+echo CHKDSK C: /F /R completado.
+
+echo.
+echo Proceso de reparacion del PC finalizado.
 pause
 goto start
 
 :SALIR
-msg * Puedes encontrar mas scripts utiles en HelpDesk IT
-exit
+cls
+echo * Puede encontrar mas scripts utiles en HelpDesk IT
+timeout /t 3 >nul
+EXIT
