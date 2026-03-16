@@ -22,7 +22,7 @@ echo 4. Configurar Usuarios sin Expiracion
 echo 5. Ver HostName
 echo 6. Cambiar HostName
 echo 7. Actualizar Programas con WinGet (Upgrade)
-echo 8. Buscar Actualizaciones con WinGet (Update)
+echo 8. Buscar Actualizaciones con WinGet (Update All)
 echo 9. Sincronizar Hora
 echo 10. Bloquear Fondo de Pantalla (ON)
 echo 11. Desbloquear Fondo de Pantalla (OFF)
@@ -43,22 +43,22 @@ for /f "delims=0123456789" %%i in ("%valor%") do (
     )
 )
 
-if "%VALOR%"=="0" goto SALIR
-if "%VALOR%"=="1" goto SERIAL
-if "%VALOR%"=="2" goto BIOS
-if "%VALOR%"=="3" goto MSINFO
-if "%VALOR%"=="4" goto USERS
-if "%VALOR%"=="5" goto HOST
-if "%VALOR%"=="6" goto HOSTNAME
-if "%VALOR%"=="7" goto WINGET_UPGRADE
-if "%VALOR%"=="8" goto WINGET_UPDATE
-if "%VALOR%"=="9" goto HORA
-if "%VALOR%"=="10" goto BLOCKWALLPAPER_ON
-if "%VALOR%"=="11" goto BLOCKWALLPAPER_OFF
-if "%VALOR%"=="12" goto REPAIR_PC
-if "%VALOR%"=="13" goto TOOLS
-if "%VALOR%"=="14" goto REPAIR_WINGET
-if "%VALOR%"=="15" goto WIN25H2
+if "%valor%"=="0" goto SALIR
+if "%valor%"=="1" goto SERIAL
+if "%valor%"=="2" goto BIOS
+if "%valor%"=="3" goto MSINFO
+if "%valor%"=="4" goto USERS
+if "%valor%"=="5" goto HOST
+if "%valor%"=="6" goto HOSTNAME
+if "%valor%"=="7" goto WINGET_UPGRADE
+if "%valor%"=="8" goto WINGET_UPDATE
+if "%valor%"=="9" goto HORA
+if "%valor%"=="10" goto BLOCKWALLPAPER_ON
+if "%valor%"=="11" goto BLOCKWALLPAPER_OFF
+if "%valor%"=="12" goto REPAIR_PC
+if "%valor%"=="13" goto TOOLS
+if "%valor%"=="14" goto REPAIR_WINGET
+if "%valor%"=="15" goto WIN25H2
 
 :ERROR_OPCION
 cls
@@ -70,13 +70,18 @@ goto start
 REM --- Funciones ---
 
 :WIN25H2
-cd d:
+cls
+echo --- Instalacion de Windows 11 25H2 (Product Server) ---
+cd /d d:\
 if exist "setup.exe" (
     echo [i] Iniciando instalacion en modo Server...
     setup.exe /product server
 ) else (
-    echo [ERROR] No se encontro setup.exe en el directorio actual.
+    echo [ERROR] No se encontro setup.exe en la raiz de la unidad D:.
 )
+echo.
+pause
+goto start
 
 :TOOLS
 cls
@@ -165,7 +170,7 @@ goto start
 cls
 echo --- Actualizando Programas con WinGet (Upgrade) ---
 echo Esto puede tomar un tiempo, por favor espere...
-PowerShell winget upgrade
+PowerShell winget upgrade --all
 echo.
 echo Actualizacion de programas completada.
 pause
@@ -175,9 +180,9 @@ goto start
 cls
 echo --- Buscando Actualizaciones con WinGet (Update All) ---
 echo Esto puede tomar un tiempo, por favor espere...
-PowerShell winget update --all
+PowerShell winget upgrade --all
 echo.
-echo Busqueda de actualizaciones completada.
+echo Busqueda y aplicacion de actualizaciones completada.
 pause
 goto start
 
